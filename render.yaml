@@ -2,14 +2,14 @@ databases:
   - name: storerate-postgres
     databaseName: storerate
     user: storerate
-    plan: basic-256mb
+    plan: free
     region: singapore
 
 services:
   - type: web
     name: storerate-app
     runtime: node
-    plan: starter
+    plan: free
     region: singapore
     buildCommand: npm ci && npm run build
     startCommand: npm start
