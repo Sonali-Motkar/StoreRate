@@ -299,19 +299,42 @@ app.get('/api/owner/dashboard', requireRole('store_owner'), async (req, res, nex
   } catch (error) { next(error); }
 });
 
-const demoStores = [
-  ['The Himalayan Brew House', 'hello@himalayanbrew.example', 'Old Manali Road, Manali, Himachal Pradesh'],
-  ["Cloud’s End Mountain Café", 'hello@cloudsend.example', 'Library Bazaar, The Mall Road, Mussoorie, Uttarakhand'],
-  ['Dal Lake Coffee House', 'hello@dallakecoffee.example', 'Boulevard Road, Srinagar, Jammu and Kashmir'],
-  ['Pine & Peak View Café', 'hello@pineandpeak.example', 'Jogiwara Road, McLeod Ganj, Dharamshala, Himachal Pradesh'],
-  ['Parvati Riverside Café', 'hello@parvatiriverside.example', 'Kasol Market, Kasol, Himachal Pradesh'],
+const legacyDemoEmails = [
+  'hello@himalayanbrew.example',
+  'hello@cloudsend.example',
+  'hello@dallakecoffee.example',
+  'hello@pineandpeak.example',
+  'hello@parvatiriverside.example',
+];
+const directoryStores = [
+  ['Cafe 1947 Riverside Manali', 'cafe1947@gmail.com', 'Near Nehru Kund, Leh-Manali Highway, VPO Bahang, Manali, Himachal Pradesh 175103, India'],
+  ['The Lazy Dog Restaurant', 'lazydogmanali@gmail.com', 'Manu Temple Road, Old Manali, Tehsil Manali, Kullu, Himachal Pradesh 175131, India'],
+  ["Lotte's Homebaked Goods Cafe", 'lottes.homebaked.goods@gmail.com', 'Shankar Bhavan, Mullingar, Landour, Mussoorie, Uttarakhand 248179, India'],
+  ['Chai Jaai Tearoom Srinagar', 'info@chaijaai.com', '1201 The Bund Road, Srinagar, Jammu and Kashmir, India'],
+  ['Books & Bricks Cafe Srinagar', 'booksandbrickscafe@gmail.com', 'Gogji Bagh, opposite Amar Singh College, Srinagar, Jammu and Kashmir 190008, India'],
 ];
 
 async function initialize() {
   const schema = await fs.readFile(path.join(root, 'server', 'schema.sql'), 'utf8');
   await pool.query(schema);
-  for (const [name, email, address] of demoStores) {
-    await pool.query('INSERT INTO stores (name, email, address) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING', [name, email, address]);
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    // Remove only the original seeded demo rows. Their test ratings must not be
+    // attributed to real businesses; user-created stores and accounts stay intact.
+    await client.query('DELETE FROM stores WHERE email = ANY($1::text[])', [legacyDemoEmails]);
+    for (const [name, email, address] of directoryStores) {
+      await client.query(
+        'INSERT INTO stores (name, email, address) VALUES ($1, $2, $3) ON CONFLICT (email) DO NOTHING',
+        [name, email, address],
+      );
+    }
+    await client.query('COMMIT');
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
+  } finally {
+    client.release();
   }
   const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
   const adminPassword = process.env.ADMIN_PASSWORD;
