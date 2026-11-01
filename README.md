@@ -15,11 +15,11 @@ StoreRate is a role-based store discovery and ratings website. The React/Vite in
 
 1. Push this repository to GitHub and sign in to Render.
 2. In Render, choose **New → Blueprint**, connect `Sonali-Motkar/StoreRate`, and select `render.yaml`.
-3. The blueprint provisions a Node web service and PostgreSQL database in Singapore. Enter `ADMIN_EMAIL` and a strong `ADMIN_PASSWORD` when prompted. The password must be 8–16 characters and include an uppercase letter and a special character. Do not commit secrets to GitHub.
-4. Review the paid service/database plans and costs shown by Render before confirming creation. Render builds the Vite frontend, starts Express, and deploys on later pushes to the connected branch.
+3. The blueprint provisions a Node web service and PostgreSQL database in Singapore. Enter `ADMIN_EMAIL` and an `ADMIN_PASSWORD` when prompted. The password must be 3 to 16 characters and include an uppercase letter and a special character. Do not commit secrets to GitHub.
+4. This blueprint uses Render free plans for a demonstration deployment. Review the plan shown by Render before confirming creation. Render builds the Vite frontend, starts Express, and deploys on later pushes to the connected branch.
 5. After deploy, open the service URL and verify `/api/health` returns `{"status":"ok"}`. Sign in with the configured initial admin email/password, create a store-owner account, assign it to a store, then test customer signup and ratings.
 
-The blueprint uses persistent PostgreSQL and non-free service plans; a production website needs a database that persists beyond a temporary trial. The service serves the UI and API together; GitHub Pages alone cannot run the Express API or PostgreSQL-backed sessions.
+Render free services can spin down when idle, and its free PostgreSQL database expires after 30 days; use a persistent production database for long-term account and rating data. The service serves the UI and API together; GitHub Pages alone cannot run the Express API or PostgreSQL-backed sessions.
 
 ## Run in development
 

@@ -51,7 +51,7 @@ app.use('/api/auth/login', authLimiter);
 app.use('/api/auth/signup', authLimiter);
 
 const roleNames = { admin: 'Admin', customer: 'Customer', store_owner: 'Store owner' };
-const passwordSchema = z.string().min(8).max(16).regex(/[A-Z]/, 'Include at least one uppercase letter.').regex(/[^A-Za-z0-9]/, 'Include at least one special character.');
+const passwordSchema = z.string().min(3).max(16).regex(/[A-Z]/, 'Include at least one uppercase letter.').regex(/[^A-Za-z0-9]/, 'Include at least one special character.');
 const nameSchema = z.string().trim().min(20).max(60);
 const addressSchema = z.string().trim().max(400);
 const emailSchema = z.string().trim().email().max(254).transform(value => value.toLowerCase());
